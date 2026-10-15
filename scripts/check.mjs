@@ -42,6 +42,8 @@ for (const {slug,html:page} of pages){
  assert.ok(/No payment, preorder or order can be placed/.test(page),'Unclear availability: '+slug);
  assert.ok(page.includes('id="product-title"'),'Missing accessible product heading: '+slug);
  assert.equal((page.match(/class="detail-image /g)||[]).length,3,'Expected three correctly sized gallery frames: '+slug);
+ assert.equal((page.match(/class="product-image product-image-/g)||[]).length,3,'Explore More must show three HD product images: '+slug);
+ assert.ok(!page.includes('class="tile-visual photo photo-'),'Old empty photo background thumbnail detected: '+slug);
  assert.ok(page.includes('class="photo-frame main-photo"'),'Missing non-stretched main product image: '+slug);
  assert.ok(html.includes('/products/'+slug+'.html'),'Home must link to '+slug);
  assert.ok(/<meta name="robots" content="noindex,nofollow,noarchive">/.test(page),'Preview indexing not disabled: '+slug);
