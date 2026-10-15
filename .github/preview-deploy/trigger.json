@@ -1,0 +1,7 @@
+{
+  "operation": "deploy",
+  "worker": "edna-portfolio-preview",
+  "parentSha": "a5b8b754fa8680f67a5c7c4e2287b09933d7a6e8",
+  "requestedAt": "2026-10-16T10:31:00+13:00",
+  "reason": "User requested publishing new photographic homepage and four concept product pages to independent EDA EVE preview"
+}
