@@ -1,7 +1,7 @@
 {
   "operation": "deploy",
   "worker": "edna-portfolio-preview",
-  "parentSha": "daf23777f00ee6535661162d8e7e5d61df1d7bd2",
-  "requestedAt": "2026-10-16T11:48:00+13:00",
-  "reason": "Owner requested America First NZ footer link and fill previously empty lower panels using existing HD fashion products"
+  "parentSha": "a9cda339266a48d0d94781eb7ae99bc369b006af",
+  "requestedAt": "2026-10-16T11:55:00+13:00",
+  "reason": "Fix blank Explore More HD product thumbnails on all four product detail pages and add regression checks"
 }
