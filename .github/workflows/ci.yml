@@ -23,7 +23,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,4 +31,48 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: npm run check
+      - name: Static checks
+        run: npm run check
+      - name: Phone and desktop horizontal overflow smoke check
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          test -n "$CHROME" || { echo "::error::Chrome is required for responsive verification."; exit 1; }
+          cat > public/__viewport-qa.html <<'HTML'
+          <!doctype html><html><meta charset="utf-8"><body>
+          <div id="result">WAITING</div><script>
+          const sizes = [320, 360, 375, 390, 430, 768, 1024, 1440];
+          let done=0,errors=[];
+          for(const size of sizes){
+            const frame=document.createElement('iframe');
+            frame.style.width=size+'px';frame.style.height='760px';frame.style.border='0';
+            frame.src='/index.html?viewport-qa='+size;
+            frame.onload=()=>{
+              requestAnimationFrame(()=>{
+                const doc=frame.contentDocument;
+                const width=frame.clientWidth;
+                const actual=Math.max(doc.documentElement.scrollWidth,doc.body.scrollWidth);
+                if(actual>width+2)errors.push(size+':'+actual);
+                if(!doc.querySelector('#pieces')||!doc.querySelector('#connect'))errors.push(size+':missing-section');
+                if(++done===sizes.length) document.querySelector('#result').textContent=errors.length?'VIEWPORT_QA_FAIL '+errors.join(','):'VIEWPORT_QA_PASS';
+              });
+            };
+            document.body.appendChild(frame);
+          }
+          </script></body></html>
+          HTML
+          python3 -m http.server 8777 --bind 127.0.0.1 --directory public > "$RUNNER_TEMP/eda-http.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for i in {1..25}; do
+            if curl -fsS http://127.0.0.1:8777/ >/dev/null; then break; fi
+            sleep .2
+          done
+          "$CHROME" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --no-first-run --disable-background-networking --window-size=1500,900 --virtual-time-budget=10000 --dump-dom http://127.0.0.1:8777/__viewport-qa.html > "$RUNNER_TEMP/viewport-dom.html" 2> "$RUNNER_TEMP/chrome.log"
+          if ! grep -q '>VIEWPORT_QA_PASS<' "$RUNNER_TEMP/viewport-dom.html"; then
+            grep -Eo 'VIEWPORT_QA_(FAIL|PASS)[^<]{0,350}|WAITING' "$RUNNER_TEMP/viewport-dom.html" | tail -5 || true
+            cat "$RUNNER_TEMP/chrome.log" | tail -30
+            exit 1
+          fi
+          echo "EDA EVE responsive overflow check PASS at widths: 320,360,375,390,430,768,1024,1440."
