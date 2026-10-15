@@ -53,8 +53,8 @@ jobs:
                 const doc=frame.contentDocument;
                 const width=frame.clientWidth;
                 const actual=Math.max(doc.documentElement.scrollWidth,doc.body.scrollWidth);
-                if(actual>width+2)errors.push(size+':'+actual);
-                if(!doc.querySelector('#pieces')||!doc.querySelector('#connect'))errors.push(size+':missing-section');
+                if(actual>width+2){const offenders=[...doc.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>width+2).slice(0,4).map(el=>el.tagName.toLowerCase()+'.'+el.className+':'+Math.round(el.getBoundingClientRect().right));errors.push(size+':'+actual+' ['+offenders.join(';')+']');}
+                if(!doc.querySelector('#featured')||!doc.querySelector('#connect'))errors.push(size+':missing-section');
                 if(++done===sizes.length) document.querySelector('#result').textContent=errors.length?'VIEWPORT_QA_FAIL '+errors.join(','):'VIEWPORT_QA_PASS';
               });
             };
