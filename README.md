@@ -36,3 +36,15 @@ Run `npm run check` and the independent GitHub CI responsive browser checks.
 The repository's own `.github/workflows/deploy-preview.yml` deploys **only** the `edna-portfolio-preview` Worker using its repo-specific `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. Production releases verify the exact SHA using `/__eda_release.txt`. An older deployment returned Cloudflare error 10000 after successfully uploading; the current workflow allows that specific scoped-token subdomain-read error **only when the exact live source SHA is verified**.
 
 Release dispatch is manual, with an approved one-off version-locked repository request as an optional alternative. No ordinary code push deploys the site automatically.
+
+## HD image upgrade (in progress)
+
+The current legacy 430×560 hero and 640×800 four-way contact sheet are being replaced. The `fix/hd-images-object-fit-20261016` branch expects these **five distinct high-quality 1122×1402 WebP files** in `public/media/`:
+
+- `eda-hero-hd.webp`
+- `raven-skirt-hd.webp`
+- `angelfall-black-hd.webp`
+- `angelfall-white-hd.webp`
+- `scarlet-corset-hd.webp`
+
+Each image is a generated fashion concept, **not** a photo of the real designer or a finished product. Images use intrinsic dimensions, lazy loading below the fold and `object-fit` rules that never stretch their original proportions. The CI check requires each asset before this branch is merged or deployed. Do not deploy an incomplete branch or insert base64 image strings directly into HTML.
