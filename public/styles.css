@@ -131,7 +131,8 @@ button{font:inherit}img{display:block;max-width:100%}svg{max-width:100%}
  .hero-desc{font-size:14px}
  .hero-side{bottom:auto;top:17px;right:16px}
  .section{padding-top:62px;padding-bottom:65px}
- .section h2{font-size:clamp(31px,8vw,52px)}
+ .section h2{font-size:clamp(29px,7vw,48px)}
+ .section-top{flex-wrap:wrap}.section-top .small-link{margin-left:0}
  .catalogue{gap:23px 11px}
  .tile-name{font-size:10px}
  .tile-visual:after{transform:none;padding:10px;font-size:9px}
