@@ -1,6 +1,10 @@
 name: Deploy EDA EVE Preview
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/preview-deploy/trigger.json"
   workflow_dispatch:
     inputs:
       confirm:
@@ -20,16 +24,36 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Require explicit manual approval on main
-        env:
-          CONFIRM: ${{ inputs.confirm }}
-        run: |
-          test "$GITHUB_REF" = "refs/heads/main"
-          test "$CONFIRM" = "DEPLOY"
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
+          fetch-depth: 2
           persist-credentials: false
+      - name: Check owner-authorized release request
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            test "$CONFIRM" = "DEPLOY"
+          elif [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            node - <<'NODE'
+          const fs = require('fs'), cp = require('child_process');
+          const req = JSON.parse(fs.readFileSync('.github/preview-deploy/trigger.json','utf8'));
+          if(req.operation!=='deploy'||req.worker!=='edna-portfolio-preview')throw Error('Invalid deploy request');
+          if(!/^[a-f0-9]{40}$/.test(req.parentSha||''))throw Error('Require immutable parent SHA');
+          if(!Number.isFinite(Date.parse(req.requestedAt||'')))throw Error('Invalid request timestamp');
+          const parent=cp.execFileSync('git',['rev-parse','HEAD^'],{encoding:'utf8'}).trim();
+          if(req.parentSha!==parent)throw Error('Request does not target immediate parent revision');
+          const changed=cp.execFileSync('git',['diff','--name-only','HEAD^','HEAD'],{encoding:'utf8'}).trim().split('\n');
+          if(changed.length!==1||changed[0]!=='.github/preview-deploy/trigger.json')throw Error('Release trigger commit must change only the request');
+          console.log('Independent one-shot release request validated for edna-portfolio-preview');
+          NODE
+          else
+            exit 1
+          fi
       - name: Verify exact checked-out commit
         run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - uses: actions/setup-node@v4
@@ -92,3 +116,15 @@ jobs:
           fi
           echo "EDA_PREVIEW_LIVE_SOURCE_SHA=$GITHUB_SHA"
           echo "EDA_PREVIEW_LIVE_VERIFICATION=PASS"
+          for slug in raven-layered-skirt angelfall-black-tee angelfall-white-tee scarlet-corset-top; do
+            curl --fail --silent --show-error --location --max-time 20 "https://edna-portfolio-preview.generalflynn17.workers.dev/products/$slug.html?release=$GITHUB_SHA" -o "$RUNNER_TEMP/$slug.html"
+            grep -Fq 'id="product-title"' "$RUNNER_TEMP/$slug.html" || {
+              echo "::error::Product page not present: $slug"
+              exit 1
+            }
+          done
+          for asset in hero.webp editorial-contact.webp; do
+            curl --fail --silent --show-error --location --max-time 20 "https://edna-portfolio-preview.generalflynn17.workers.dev/media/$asset?release=$GITHUB_SHA" -o "$RUNNER_TEMP/$asset"
+            test "$(wc -c < "$RUNNER_TEMP/$asset")" -gt 2000 || exit 1
+          done
+          echo "EDA_PRODUCT_ROUTES_AND_MEDIA=PASS"
