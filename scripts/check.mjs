@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+const html = readFileSync(new URL('../public/index.html', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../public/styles.css', import.meta.url), 'utf8');
+const robots = readFileSync(new URL('../public/robots.txt', import.meta.url), 'utf8');
+const config = JSON.parse(readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8'));
+for (const fragment of ['lang="en"', 'name="viewport"', 'name="robots" content="noindex,nofollow,noarchive"', 'id="main"', 'id="work"', 'id="studio"', 'id="connect"', 'https://linktr.ee/edaeeve', 'https://www.instagram.com/edaeeveportfolio/', 'CONCEPT', 'ILLUSTRATIVE DESIGN STUDY']) assert.ok(html.includes(fragment), 'Missing preview feature: ' + fragment);
+assert.ok(css.includes('@media(max-width:480px)'), 'Missing mobile layout');
+assert.ok(css.includes('prefers-reduced-motion'), 'Reduced motion support missing');
+assert.ok(robots.includes('Disallow: /'), 'Missing robot opt out');
+assert.equal(config.name, 'edna-portfolio-preview');
+assert.equal(config.assets.directory, './public');
+assert.equal(config.workers_dev, true);
+assert.equal(config.routes, undefined, 'Preview must not bind a domain');
+assert.equal(config.kv_namespaces, undefined, 'Preview must not use KV');
+assert.ok(!/<form\b|stripe|checkout|google-analytics|gtag\(/i.test(html), 'No selling or data collection');
+assert.ok(!/<script\b/i.test(html), 'No client scripts needed');
+console.log('EDA EVE preview checks passed');
