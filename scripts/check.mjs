@@ -15,7 +15,7 @@ for(const part of ['fashion, print and visual experience.','id="featured"','id="
 }
 assert.equal((html.match(/class="tile"/g)||[]).length,4,'Four featured products');
 for (const {slug,html:page} of pages){
- assert.ok(page.includes('class="product-layout"'),'Missing product layout: '+slug);
+ assert.ok(page.includes('class="wrap product-layout"'),'Missing product layout: '+slug);
  assert.ok(page.includes('data-stripe-placeholder="true"'),'Missing Stripe placeholder: '+slug);
  assert.ok(/class="inactive-buy" disabled/.test(page),'Checkout not disabled: '+slug);
  assert.ok(/No payment, preorder or order can be placed/.test(page),'Unclear availability: '+slug);
