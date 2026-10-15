@@ -37,6 +37,8 @@ jobs:
           node-version: 24
       - name: Validate static preview
         run: npm run check
+      - name: Stamp immutable revision for live verification
+        run: printf '%s\n' "$GITHUB_SHA" > public/__eda_release.txt
       - name: Dry-run Cloudflare bundle
         run: npx --yes wrangler@4.131.1 deploy --dry-run
       - name: Require repository-specific credentials
@@ -56,5 +58,37 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
         run: |
-          npx --yes wrangler@4.131.1 deploy --message "EDA EVE preview $GITHUB_SHA"
+          set -euo pipefail
+          set +e
+          npx --yes wrangler@4.131.1 deploy --message "EDA EVE preview $GITHUB_SHA" 2>&1 | tee "$RUNNER_TEMP/edna-deploy.log"
+          deploy_code="${PIPESTATUS[0]}"
+          set -e
+          if [ "$deploy_code" -ne 0 ]; then
+            # A narrowly scoped token can upload a Worker and assets but lack
+            # account-wide workers.dev subdomain metadata READ permission.
+            # Never bypass any other error; verify the exact live source SHA.
+            if ! grep -Fq 'Uploaded edna-portfolio-preview' "$RUNNER_TEMP/edna-deploy.log" ||
+               ! grep -Fq '/workers/subdomain' "$RUNNER_TEMP/edna-deploy.log" ||
+               ! grep -Fq 'Authentication error [code: 10000]' "$RUNNER_TEMP/edna-deploy.log"; then
+              echo "::error::Wrangler failed before a verified successful Worker upload."
+              exit "$deploy_code"
+            fi
+            echo "::warning::Worker uploaded. Scoped token cannot read workers.dev account metadata. Checking exact live revision."
+          fi
+          published=0
+          for attempt in {1..15}; do
+            live_sha="$(curl --fail --silent --show-error --location --connect-timeout 5 --max-time 12 --header 'Cache-Control: no-cache' "https://edna-portfolio-preview.generalflynn17.workers.dev/__eda_release.txt?rev=$GITHUB_SHA" 2>/dev/null || true)"
+            if [ "$live_sha" = "$GITHUB_SHA" ]; then
+              published=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$published" -ne 1 ]; then
+            echo "::error::Could not verify exact source SHA on the live preview. Release is unconfirmed."
+            exit 1
+          fi
+          echo "EDA_PREVIEW_LIVE_SOURCE_SHA=$GITHUB_SHA"
+          echo "EDA_PREVIEW_LIVE_VERIFICATION=PASS"
