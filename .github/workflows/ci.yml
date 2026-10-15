@@ -1,0 +1,34 @@
+name: EDA EVE Static Quality Checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "public/**"
+      - "scripts/check.mjs"
+      - "wrangler.jsonc"
+      - "package.json"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "public/**"
+      - "scripts/check.mjs"
+      - "wrangler.jsonc"
+      - "package.json"
+      - ".github/workflows/ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm run check
