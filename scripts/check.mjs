@@ -23,10 +23,19 @@ for(const part of ['fashion, print and visual experience.','id="featured"','id="
  assert.ok((html+css).includes(part),'Homepage must include: '+part);
 }
 assert.equal((html.match(/class="tile"/g)||[]).length,4,'Four featured products');
+assert.equal((html.match(/class="collection-product"/g)||[]).length,4,'Four repeat product links in lower shelves');
+for(const slug of slugs){
+ assert.ok(html.includes('/products/'+slug+'.html'),'Existing product link missing: '+slug);
+}
+assert.ok(css.includes('.collection-shot img')&&css.includes('object-fit:cover'),'Repeated HD product images must crop without stretching');
+assert.ok(!html.includes('class="split-banners"'),'Empty promotional panels must be replaced');
+assert.ok(html.includes('href="https://americafirst.nz/" target="_blank" rel="noopener noreferrer"'),'Footer partner link missing');
+
 assert.equal((html.match(/<img class="product-image/g)||[]).length,4,'Four separate HD homepage product photographs');
 assert.ok(html.includes('class="hero-photo"><img'),'Hero must use an actual image element');
 assert.ok(html.includes('class="look-image"><img'),'Lookbook must use a real image element');
 for (const {slug,html:page} of pages){
+ assert.ok(page.includes('href="https://americafirst.nz/" target="_blank" rel="noopener noreferrer"'),'Footer partner link missing on '+slug);
  assert.ok(page.includes('class="wrap product-layout"'),'Missing product layout: '+slug);
  assert.ok(page.includes('data-stripe-placeholder="true"'),'Missing Stripe placeholder: '+slug);
  assert.ok(/class="inactive-buy" disabled/.test(page),'Checkout not disabled: '+slug);
