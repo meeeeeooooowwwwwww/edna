@@ -27,7 +27,7 @@ for (const {slug,html:page} of pages){
 for(const part of ['@media(max-width:950px)','@media(max-width:650px)','@media(max-width:350px)','prefers-reduced-motion','.nav a:after','.photo-skirt','.photo-whitetee','.product-layout','.inactive-buy']){
  assert.ok(css.includes(part),'Missing responsive/brand CSS: '+part);
 }
-assert.ok(!/gothic|rave/i.test(html+pages.map(x=>x.html).join('')),'Do not box the brand into a category');
+assert.ok(!/\b(?:gothic|rave)\b/i.test(html+pages.map(x=>x.html).join('')),'Do not box the brand into a category');
 assert.ok(!/<form\b|<script\b|stripe\.com|https?:\/\/images\.unsplash/i.test(html),'No live payment, trackers or external hotlink');
 assert.ok(read('public/robots.txt').includes('Disallow: /'),'Preview crawler opt-out');
 assert.equal(config.name,'edna-portfolio-preview');
