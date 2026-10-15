@@ -1,0 +1,52 @@
+name: Deploy EDA EVE Preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type DEPLOY to publish only the independent EDA EVE preview"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: edna-portfolio-preview-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Require explicit manual approval on main
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$CONFIRM" = "DEPLOY"
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Validate static preview
+        run: npm run check
+      - name: Dry-run Cloudflare bundle
+        run: npx --yes wrangler@4.131.1 deploy --dry-run
+      - name: Require repository-specific credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || {
+            echo "::error::Set CLOUDFLARE_API_TOKEN for THIS repository; no deployment performed."
+            exit 1
+          }
+      - name: Deploy ONLY the edna-portfolio-preview Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx --yes wrangler@4.131.1 deploy --message "EDA EVE preview $GITHUB_SHA"
