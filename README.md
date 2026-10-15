@@ -16,15 +16,17 @@ A lightweight, independent Cloudflare Workers static-assets preview for the `@ed
 ## Local development
 
 ```bash
-npm ci
+npm run check
 npm run dev
 ```
 
 ## Deployment
 
-Use this repository's own **Deploy EDA EVE Preview** GitHub Action once `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are configured as secrets **in this repository**. This must be a dedicated token scoped to the preview Worker, not GRID EATER's global key. The workflow is manual-only and never deploys another repository.
+Use this repository's own **Deploy EDA EVE Preview** GitHub Action once a `CLOUDFLARE_API_TOKEN` is configured as a secret **in this repository** (`CLOUDFLARE_ACCOUNT_ID` may also be set if your Cloudflare account cannot be determined automatically). This must be a dedicated token scoped to the preview Worker, not GRID EATER's global key. The workflow is manual-only and never deploys another repository.
 
 No deployment has been carried out simply by adding these files.
+
+The preview's robots opt-out is not password protection. Do not place private materials in this public repository or publish private details about the designer.
 
 ## Replace the example visuals
 
