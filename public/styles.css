@@ -168,7 +168,7 @@ h2,h3,p{margin-top:0}
   .piece-card:last-child{grid-column:1 / -1;max-width:calc(50% - 9px)}
   .experience-head{grid-template-columns:1fr;gap:26px}
   .experience-head p{max-width:500px}
-  .studio{gap:40px}.studio h2{font-size:clamp(75px,10vw,115px)}
+  .studio{gap:40px}.studio h2{font-size:clamp(66px,9vw,105px)}
 }
 @media (max-width:620px){
   html{scroll-padding-top:130px}
@@ -196,7 +196,7 @@ h2,h3,p{margin-top:0}
   .section-top{align-items:flex-start}.eyebrow,.section-aside{font-size:9px}
   .section-aside{max-width:120px}
   .section-lead{margin:26px 0 36px}
-  .section-lead h2{font-size:clamp(78px,15.4vw,112px)}
+  .section-lead h2{font-size:clamp(62px,13.8vw,102px)}
   .section-lead p{font-size:14px}
   .pieces-grid{grid-template-columns:1fr;gap:43px}
   .piece-card:last-child{grid-column:auto;max-width:none}
@@ -207,7 +207,7 @@ h2,h3,p{margin-top:0}
   .buy-button{min-height:50px;font-size:10px}
   .pieces-note{font-size:11px}
   .experience-head{margin:33px 0 38px}
-  .experience-head h2{font-size:clamp(70px,14.2vw,97px)}
+  .experience-head h2{font-size:clamp(48px,10.2vw,76px)}
   .experience-head p{font-size:15px}
   .texture-grid{grid-template-columns:1fr 1fr;gap:10px}
   .texture-panel{padding:15px;aspect-ratio:.92}
@@ -217,10 +217,10 @@ h2,h3,p{margin-top:0}
   .studio{grid-template-columns:1fr;gap:46px}
   .studio-art{max-width:500px;width:100%}
   .studio-orbit{font-size:clamp(100px,29vw,190px)}
-  .studio h2{font-size:clamp(75px,14vw,110px)}
+  .studio h2{font-size:clamp(58px,11vw,76px)}
   .studio-lead{font-size:30px}
   .studio-text>p:not(.studio-lead){font-size:15px}
-  .connect h2{font-size:clamp(88px,18vw,125px);margin-bottom:45px}
+  .connect h2{font-size:clamp(63px,13.5vw,106px);margin-bottom:45px}
   .connect-layout{grid-template-columns:1fr;gap:24px}
   .connect-layout p{font-size:26px}
   .connect-links a{font-size:15px}
@@ -236,9 +236,10 @@ h2,h3,p{margin-top:0}
   .hero-visual{min-height:400px}
   .hero-visual-caption span:last-child{display:none}
   .interlude span:nth-of-type(n+6){display:none}
-  .section-lead h2{font-size:71px}
-  .experience-head h2{font-size:63px}
-  .connect h2{font-size:78px}
+  .section-lead h2{font-size:57px}
+  .experience-head h2{font-size:41px}
+  .connect h2{font-size:55px}
+  .studio h2{font-size:50px}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
