@@ -57,15 +57,20 @@ button{font:inherit}img{display:block;max-width:100%}svg{max-width:100%}
 .tile-type{display:block;font-size:10px;letter-spacing:.08em;color:var(--muted);margin-top:4px}
 .tile-meta .plus{font-size:23px;line-height:1;color:var(--pink)}
 .note{margin-top:25px;color:#999196;letter-spacing:.035em;line-height:1.7;max-width:830px;font-size:12px}
-.split-banners{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.promo{min-height:430px;display:flex;align-items:flex-end;padding:35px;position:relative;overflow:hidden;background:#131313}
-.promo-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 34%;transform:scale(1);transition:transform .65s}
-.promo:hover .promo-image{transform:scale(1.035)}
-.promo.silhouette .promo-image{object-position:center 50%}
-.promo:after{content:"";position:absolute;inset:20% 0 0;background:linear-gradient(0deg,#050506d9,transparent)}
-.promo-content{position:relative;z-index:2}
-.promo h3{font:400 clamp(36px,5vw,72px)/.94 Georgia,serif;letter-spacing:.04em;margin:14px 0}
-.promo .small-link{color:white}
+.collection-shelves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(20px,3vw,44px)}
+.collection-shelf{min-width:0;border-top:1px solid var(--hair);padding-top:18px}
+.collection-shelf-top{min-height:60px;display:flex;justify-content:space-between;align-items:start;gap:12px}
+.collection-shelf-top h3{font:400 clamp(26px,2.5vw,38px)/1.1 Georgia,serif;letter-spacing:.03em;margin:0}
+.collection-shelf-top .eyebrow{font-size:9px;white-space:nowrap}
+.collection-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.collection-product{min-width:0}
+.collection-shot{position:relative;display:block;overflow:hidden;background:#161416;aspect-ratio:4/5}
+.collection-shot img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 35%;transition:transform .35s ease}
+.collection-product:hover .collection-shot img{transform:scale(1.025)}
+.collection-label{display:flex;justify-content:space-between;align-items:start;gap:8px;padding-top:12px;font-size:10px;line-height:1.6;letter-spacing:.1em;font-weight:650;text-transform:uppercase;position:relative}
+.collection-label:after{content:"";position:absolute;bottom:-4px;left:0;right:0;height:1px;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .32s ease}
+.collection-product:hover .collection-label:after,.collection-product:focus-visible .collection-label:after{transform:scaleX(1)}
+.collection-label>span{font-size:17px;color:var(--pink)}
 .lookbook{display:grid;grid-template-columns:1.35fr .65fr;min-height:580px;background:#0a090b}
 .look-image{position:relative;min-height:500px;background:#090909;overflow:hidden}
 .look-image>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 33%;display:block}
@@ -144,9 +149,11 @@ button{font:inherit}img{display:block;max-width:100%}svg{max-width:100%}
  .catalogue{gap:23px 11px}
  .tile-name{font-size:10px}
  .tile-visual:after{transform:none;padding:10px;font-size:9px}
- .split-banners{grid-template-columns:1fr;gap:12px}
- .promo{min-height:320px}
- .promo h3{font-size:51px}
+ .collection-shelves{grid-template-columns:1fr;gap:34px}
+ .collection-shelf-top{min-height:53px}
+ .collection-shelf-top h3{font-size:clamp(27px,6.5vw,37px)}
+ .collection-pair{gap:11px}
+ .collection-label{font-size:10px}
  .lookbook{grid-template-columns:1fr}
  .look-image{min-height:430px}
  .look-copy{padding:42px 22px}
