@@ -1,7 +1,7 @@
 {
   "operation": "deploy",
   "worker": "edna-portfolio-preview",
-  "parentSha": "a5b8b754fa8680f67a5c7c4e2287b09933d7a6e8",
-  "requestedAt": "2026-10-16T10:31:00+13:00",
-  "reason": "User requested publishing new photographic homepage and four concept product pages to independent EDA EVE preview"
+  "parentSha": "daf23777f00ee6535661162d8e7e5d61df1d7bd2",
+  "requestedAt": "2026-10-16T11:48:00+13:00",
+  "reason": "Owner requested America First NZ footer link and fill previously empty lower panels using existing HD fashion products"
 }
