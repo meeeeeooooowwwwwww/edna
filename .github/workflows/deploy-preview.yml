@@ -28,7 +28,10 @@ jobs:
           test "$CONFIRM" = "DEPLOY"
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.sha }}
           persist-credentials: false
+      - name: Verify exact checked-out commit
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - uses: actions/setup-node@v4
         with:
           node-version: 24
