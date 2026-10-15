@@ -1,45 +1,38 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-
+import { readFileSync, statSync } from 'node:fs';
 const read = (path) => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
-const html = read('public/index.html');
-const css = read('public/styles.css');
-const logo = read('public/eda-eve-mark.svg');
-const robots = read('public/robots.txt');
-const config = JSON.parse(read('wrangler.jsonc'));
+const stat = (path) => statSync(new URL('../' + path, import.meta.url));
+const html=read('public/index.html'),css=read('public/styles.css');
+const slugs=['raven-layered-skirt','angelfall-black-tee','angelfall-white-tee','scarlet-corset-top'];
+const pages=slugs.map(slug=>({slug,html:read('public/products/'+slug+'.html')}));
+const config=JSON.parse(read('wrangler.jsonc'));
 
-for (const fragment of [
-  'lang="en"', 'name="viewport"', 'id="main"', 'id="pieces"',
-  'id="experience"', 'id="studio"', 'id="connect"',
-  'https://linktr.ee/edaeeve', 'https://www.instagram.com/edaeeveportfolio/',
-  'name="robots" content="noindex,nofollow,noarchive"',
-  'CONCEPT PREVIEW', 'CONCEPT PREVIEW · SAMPLE VISUALS',
-  '/eda-eve-mark.svg', 'fashion, print and <em>visual experience.</em>',
-]) {
-  assert.ok(html.includes(fragment), 'Missing expected feature: ' + fragment);
+for(const path of ['public/media/hero.webp','public/media/editorial-contact.webp']){
+ assert.ok(stat(path).size>2000,path+' missing or suspiciously small');
 }
-for (const selector of ['.hero', '.pieces-grid', '.texture-grid', '.connect-links', '.nav']) {
-  assert.ok(css.includes(selector), 'Missing expected selector: ' + selector);
+for(const part of ['fashion, print and visual experience.','id="featured"','id="printed-tees"','id="lookbook"','id="about"','https://linktr.ee/edaeeve','https://www.instagram.com/edaeeveportfolio/','DESIGN CONCEPT','/media/hero.webp']){
+ assert.ok((html+css).includes(part),'Homepage must include: '+part);
 }
-assert.ok(css.includes('@media (max-width:620px)'), 'Narrow-phone CSS missing');
-assert.ok(css.includes('@media (max-width:360px)'), 'Small-phone CSS missing');
-assert.ok(css.includes('prefers-reduced-motion'), 'Reduced-motion CSS missing');
-assert.ok(css.includes('overflow-x:auto'), 'Mobile navigation scrolling missing');
-assert.ok(css.includes('.buy-button:disabled'), 'Disabled checkout styling missing');
-
-assert.equal((html.match(/data-stripe-placeholder="true"/g) || []).length, 3, 'Expected 3 future-payment placeholders');
-assert.equal((html.match(/class="buy-button"[^>]*disabled/g) || []).length, 3, 'All future-payment controls must be disabled');
-assert.ok(/Payments are not active/i.test(html), 'Preview must clearly signal no active payments');
-assert.ok(!/<form\b|<script\b|https?:\/\/(?:checkout\.)?stripe\.com|data-stripe-publishable-key/i.test(html), 'No real payment integration or data collection');
-assert.ok(!/gothic|rave/i.test(html), 'Brand copy should not be boxed into subcultures');
-assert.ok(!/<a[^>]+target="_blank"(?![^>]+rel="noopener noreferrer")/i.test(html), 'External links require safe rel');
-assert.ok(logo.includes('viewBox="0 0 120 120"') && logo.includes('<title>EDA EVE monogram</title>'), 'Original monogram missing');
-
-assert.ok(robots.includes('Disallow: /'), 'Crawler opt-out missing');
-assert.equal(config.name, 'edna-portfolio-preview');
-assert.equal(config.assets.directory, './public');
-assert.equal(config.workers_dev, true);
-assert.equal(config.routes, undefined, 'Preview must not bind a production domain');
-assert.equal(config.kv_namespaces, undefined, 'No database or KV needed');
-
-console.log('EDA EVE — structure, branding, mobile, placeholder checkout and isolation checks passed.');
+assert.equal((html.match(/class="tile"/g)||[]).length,4,'Four featured products');
+for (const {slug,html:page} of pages){
+ assert.ok(page.includes('class="product-layout"'),'Missing product layout: '+slug);
+ assert.ok(page.includes('data-stripe-placeholder="true"'),'Missing Stripe placeholder: '+slug);
+ assert.ok(/class="inactive-buy" disabled/.test(page),'Checkout not disabled: '+slug);
+ assert.ok(/No payment, preorder or order can be placed/.test(page),'Unclear availability: '+slug);
+ assert.ok(page.includes('id="product-title"'),'Missing accessible product heading: '+slug);
+ assert.ok(html.includes('/products/'+slug+'.html'),'Home must link to '+slug);
+ assert.ok(/<meta name="robots" content="noindex,nofollow,noarchive">/.test(page),'Preview indexing not disabled: '+slug);
+ assert.ok(!/<form\b|<script\b|checkout\.stripe\.com|data-stripe-publishable-key/i.test(page),'Unexpected live checkout: '+slug);
+}
+for(const part of ['@media(max-width:950px)','@media(max-width:650px)','@media(max-width:350px)','prefers-reduced-motion','.nav a:after','.photo-skirt','.photo-whitetee','.product-layout','.inactive-buy']){
+ assert.ok(css.includes(part),'Missing responsive/brand CSS: '+part);
+}
+assert.ok(!/gothic|rave/i.test(html+pages.map(x=>x.html).join('')),'Do not box the brand into a category');
+assert.ok(!/<form\b|<script\b|stripe\.com|https?:\/\/images\.unsplash/i.test(html),'No live payment, trackers or external hotlink');
+assert.ok(read('public/robots.txt').includes('Disallow: /'),'Preview crawler opt-out');
+assert.equal(config.name,'edna-portfolio-preview');
+assert.equal(config.assets.directory,'./public');
+assert.equal(config.workers_dev,true);
+assert.equal(config.routes,undefined);
+assert.equal(config.kv_namespaces,undefined);
+console.log('EDA EVE PASS: four product pages, real image assets, restricted commerce, mobile layouts and isolation.');
